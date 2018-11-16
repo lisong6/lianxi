@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<form action="">
+		城市<input type="text" name="city" id="city">
+	</form>
+</body>
+</html>
+<script src="jquery-1.10.2.js"></script>
+<script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+<script>
+	$(function(){
+		$('#city').on('blur',function(){
+			var city=$('#city').val();
+			// alert(city);
+			if(city=='' || $.trim(city).length==0){
+				alert('城市不能为空');
+				return false;
+			}
+			if(city.length>30){
+				alert('城市名称不能超过30');
+				return false;
+			}
+			var reg=/^[a-z0-9\u4e00-\u9fa5]+$/i;
+			if(!reg.test(city)){
+				alert('城市名称不能含有特殊字符');
+				return false;
+			}
+			$.ajax({
+				url:'show.php',
+				type:'get',
+				datatype:'json',
+				data:{'city':city},
+				success:function(data){
+					// console.log(data);
+					var resultarr=new Array();
+					var temparr=new Array();	
+					data=eval(data);
+					for (var i=0;i<data.length;i++){
+						temparr.push(data[i]['date']);
+						var max=data[i]['tmp_max'];
+						var min=data[i]['tmp_min'];
+
+						var arr=[max,min];
+						var tmparr=arr.map(Number);
+						resultarr.push(tmparr);
+					}
+					showweather(temparr,resultarr);		
+				}
+			})
+		})
+	})
+
+	function showweather(temparr,resultarr){
+		var options = {
+            chart: {
+                type: 'bar' ,
+                inverted: true,                         //指定图表的类型，默认是折线图（line）
+            },
+            title: {
+                text: '温度变化范围'                 // 标题
+            },
+            xAxis: {
+                categories: temparr   // x 轴分类
+            },
+            yAxis: {
+                title: {
+                    text: '温度值'                // y 轴标题
+                }
+            },
+
+
+            plotOptions: {
+	        columnrange: {
+	            dataLabels: {
+	                enabled: true,
+	                formatter: function () {
+	                    return this.y + '°C';
+	                }
+	            }
+	        }
+	    },
+
+
+            series: [
+            {                              // 数据列
+                name: '随机数据',                        // 数据列名
+                data: resultarr                     // 数据
+            }
+            ]
+        };
+        // 图表初始化函数
+        var chart = Highcharts.chart('container', options);
+	}
+</script>
