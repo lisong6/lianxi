@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<form action="">
+		<h2>查询城市天气</h2>
+		输入城市：<p></p>
+		<input type="text" name="city" id="city">
+		<div id="container" style="width: 600px;height:400px;"></div>
+	</form>
+	
+</body>
+</html>
+<script src="jquery-1.10.2.js"></script>
+<script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+<script>
+	$(function(){
+		$('#city').on('blur',function(){
+			var city=$('#city').val();
+			if(city.length==0){
+				alert('不能为空！');
+				return false;
+			}
+			if(city.length>30){
+				alert('长度不能大于30字符!');
+				return false;
+			}
+			var res=/^a-z0-9\u4e00\u9fa5$/i;
+			if(res.test(res)){
+				alert('必须为数字/字母/汉字');
+				return false;
+			}
+			$.ajax({
+				url:'res.php',
+				type:'get',
+				data:{'city':city},
+				dataType:'json',
+				success:function(data){
+					console.log(data);
+					resdata();
+				}
+			})
+		})
+
+function resdata(){
+	var chart = Highcharts.chart('container', {
+    chart: {
+        type: 'columnrange', // columnrange 依赖 highcharts-more.js
+        inverted: true
+    },
+    title: {
+        text: '温度变化范围'
+    },
+    subtitle: {
+        text: '2009 挪威某地'
+    },
+    xAxis: {
+        categories: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+    },
+    yAxis: {
+        title: {
+            text: '温度 ( °C )'
+        }
+    },
+    tooltip: {
+        valueSuffix: '°C'
+    },
+    plotOptions: {
+        columnrange: {
+            dataLabels: {
+                enabled: true,
+                formatter: function () {
+                    return this.y + '°C';
+                }
+            }
+        }
+    },
+    legend: {
+        enabled: false
+    },
+    series: [{
+        name: '温度',
+        data: [
+            [-9.7, 9.4],
+            [-8.7, 6.5],
+            [-3.5, 9.4],
+            [-1.4, 19.9],
+            [0.0, 22.6],
+            [2.9, 29.5],
+            [9.2, 30.7],
+            [7.3, 26.5],
+            [4.4, 18.0],
+            [-3.1, 11.4],
+            [-5.2, 10.4],
+            [-13.5, 9.8]
+        ]
+    }]
+});
+}
+
+
+		
+	})
+
+
+</script>
